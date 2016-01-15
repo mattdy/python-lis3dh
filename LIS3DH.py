@@ -81,11 +81,11 @@ class LIS3DH:
    AXIS_Y        = 0x01
    AXIS_Z        = 0x02
 
-   def __init__(self, address=0x18, debug=False):
+   def __init__(self, address=0x18, bus=-1, debug=False):
       self.isDebug = debug
       self.debug("Initialising LIS3DH")
 
-      self.i2c = Adafruit_I2C(address, debug)
+      self.i2c = Adafruit_I2C(address, busnum=bus)
       self.address = address
 
       try:
