@@ -171,49 +171,48 @@ class LIS3DH:
    # Enable or disable an individual axis
    # Read status from CTRL_REG1, then write back with appropriate status bit changed
    def setAxisStatus(self, axis, enable):
-	   if axis<0 or axis>2:
-		   raise Exception("Tried to modify invalid axis")
+       if axis<0 or axis>2:
+           raise Exception("Tried to modify invalid axis")
 		
-	   current = self.i2c.readU8(self.REG_CTRL1)
-	   status = 1 if enable else 0
-	   final = self.setBit(current, axis, status)
-	   self.writeRegister(self.REG_CTRL1, final)
+       current = self.i2c.readU8(self.REG_CTRL1)
+       status = 1 if enable else 0
+       final = self.setBit(current, axis, status)
+       self.writeRegister(self.REG_CTRL1, final)
 	   
    def setInterrupt(self,mycallback):
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(self.INT_IO, GPIO.IN)
-		GPIO.add_event_detect(self.INT_IO, GPIO.RISING, callback=mycallback)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.INT_IO, GPIO.IN)
+        GPIO.add_event_detect(self.INT_IO, GPIO.RISING, callback=mycallback)
 	
    def setClick(self,clickmode,clickthresh=80,timelimit=10,timelatency=20,timewindow=100,mycallback=None):
-		if (clickmode==self.CLK_NONE):
-		    val = self.i2c.readU8(self.REG_CTRL3) # Get value from register
-		    val &= ~(0x80) # unset bit 8 to disable interrupt
-		    self.writeRegister(self.REG_CTRL3, val) # Write back to register
-		    self.writeRegister(self.REG_CLICKCFG, 0) # disable all interrupts
-		    return
-		self.writeRegister(self.REG_CTRL3, 0x80)  # turn on int1 click
-		self.writeRegister(self.REG_CTRL5, 0x08)  # latch interrupt on int1
+        if (clickmode==self.CLK_NONE):
+            val = self.i2c.readU8(self.REG_CTRL3) # Get value from register
+            val &= ~(0x80) # unset bit 8 to disable interrupt
+            self.writeRegister(self.REG_CTRL3, val) # Write back to register
+            self.writeRegister(self.REG_CLICKCFG, 0) # disable all interrupts
+            return
+        self.writeRegister(self.REG_CTRL3, 0x80)  # turn on int1 click
+        self.writeRegister(self.REG_CTRL5, 0x08)  # latch interrupt on int1
 		
-		if (clickmode == self.CLK_SINGLE):
-			self.writeRegister(self.REG_CLICKCFG, 0x15) # turn on all axes & singletap
-		if (clickmode == self.CLK_DOUBLE):
-			self.writeRegister(self.REG_CLICKCFG, 0x2A) # turn on all axes & doubletap
+        if (clickmode == self.CLK_SINGLE):
+            self.writeRegister(self.REG_CLICKCFG, 0x15) # turn on all axes & singletap
+        if (clickmode == self.CLK_DOUBLE):
+            self.writeRegister(self.REG_CLICKCFG, 0x2A) # turn on all axes & doubletap
 
 # set timing parameters
-		self.writeRegister(self.REG_CLICKTHS, clickthresh)
-		self.writeRegister(self.REG_TIMELIMIT, timelimit)
-		self.writeRegister(self.REG_TIMELATENCY, timelatency)
-		self.writeRegister(self.REG_TIMEWINDOW, timewindow)
+        self.writeRegister(self.REG_CLICKTHS, clickthresh)
+        self.writeRegister(self.REG_TIMELIMIT, timelimit)
+        self.writeRegister(self.REG_TIMELATENCY, timelatency)
+        self.writeRegister(self.REG_TIMEWINDOW, timewindow)
 
-#define interrupt & callback
-		if mycallback != None:
-			self.setInterrupt(mycallback)
+        if mycallback != None:
+            self.setInterrupt(mycallback)
 
 
    def getClick(self):
-	   reg = self.i2c.readU8(self.REG_CLICKSRC)       # read click register
-	   self.i2c.readU8(self.REG_INT1SRC)              # reset  interrupt flag
-	   return reg 
+        reg = self.i2c.readU8(self.REG_CLICKSRC)       # read click register
+        self.i2c.readU8(self.REG_INT1SRC)              # reset  interrupt flag
+        return reg 
 
    # Set the rate (cycles per second) at which data is gathered
 
