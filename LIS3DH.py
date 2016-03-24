@@ -3,6 +3,7 @@
 # LIS3DH Python Library for Raspberry Pi
 # Created by Matt Dyson (mattdyson.org)
 # Version 1.0 - 10/01/16
+# Version 1.1 - 19/03/16 (Mal Smalley) Adding click detection
 
 # Requires the Adafruit I2C Python library
 # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code
@@ -12,7 +13,7 @@
 #  - https://www.adafruit.com/datasheets/LIS3DH.pdf
 
 from Adafruit_I2C import Adafruit_I2C
-from time import sleep
+import RPi.GPIO as GPIO        #needed for Hardware interrupt
 
 class LIS3DH:
 
@@ -76,6 +77,11 @@ class LIS3DH:
 
    # Values
    DEVICE_ID     = 0x33
+   INT_IO		 = 0x04        # GPIO pin for interrupt
+   CLK_NONE      = 0x00
+   CLK_SINGLE    = 0x01
+   CLK_DOUBLE    = 0x02
+
 
    AXIS_X        = 0x00
    AXIS_Y        = 0x01
@@ -137,7 +143,7 @@ class LIS3DH:
       if range==self.RANGE_2G:    divisor = 16380
       elif range==self.RANGE_4G:  divisor = 8190
       elif range==self.RANGE_8G:  divisor = 4096
-      elif range==self.RANGE_16G: divisor = 2048
+      elif range==self.RANGE_16G: divisor = 1365.33
 
       return float(res) / divisor
 
@@ -165,15 +171,51 @@ class LIS3DH:
    # Enable or disable an individual axis
    # Read status from CTRL_REG1, then write back with appropriate status bit changed
    def setAxisStatus(self, axis, enable):
-      if axis<0 or axis>2:
-         raise Exception("Tried to modify invalid axis")
+       if axis<0 or axis>2:
+           raise Exception("Tried to modify invalid axis")
+		
+       current = self.i2c.readU8(self.REG_CTRL1)
+       status = 1 if enable else 0
+       final = self.setBit(current, axis, status)
+       self.writeRegister(self.REG_CTRL1, final)
+	   
+   def setInterrupt(self,mycallback):
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.INT_IO, GPIO.IN)
+        GPIO.add_event_detect(self.INT_IO, GPIO.RISING, callback=mycallback)
+	
+   def setClick(self,clickmode,clickthresh=80,timelimit=10,timelatency=20,timewindow=100,mycallback=None):
+        if (clickmode==self.CLK_NONE):
+            val = self.i2c.readU8(self.REG_CTRL3) # Get value from register
+            val &= ~(0x80) # unset bit 8 to disable interrupt
+            self.writeRegister(self.REG_CTRL3, val) # Write back to register
+            self.writeRegister(self.REG_CLICKCFG, 0) # disable all interrupts
+            return
+        self.writeRegister(self.REG_CTRL3, 0x80)  # turn on int1 click
+        self.writeRegister(self.REG_CTRL5, 0x08)  # latch interrupt on int1
+		
+        if (clickmode == self.CLK_SINGLE):
+            self.writeRegister(self.REG_CLICKCFG, 0x15) # turn on all axes & singletap
+        if (clickmode == self.CLK_DOUBLE):
+            self.writeRegister(self.REG_CLICKCFG, 0x2A) # turn on all axes & doubletap
 
-      current = self.i2c.readU8(self.REG_CTRL1)
-      status = 1 if enable else 0
-      final = self.setBit(current, axis, status)
-      self.writeRegister(self.REG_CTRL1, final)
+# set timing parameters
+        self.writeRegister(self.REG_CLICKTHS, clickthresh)
+        self.writeRegister(self.REG_TIMELIMIT, timelimit)
+        self.writeRegister(self.REG_TIMELATENCY, timelatency)
+        self.writeRegister(self.REG_TIMEWINDOW, timewindow)
+
+        if mycallback != None:
+            self.setInterrupt(mycallback)
+
+
+   def getClick(self):
+        reg = self.i2c.readU8(self.REG_CLICKSRC)       # read click register
+        self.i2c.readU8(self.REG_INT1SRC)              # reset  interrupt flag
+        return reg 
 
    # Set the rate (cycles per second) at which data is gathered
+
    def setDataRate(self, dataRate):
       val = self.i2c.readU8(self.REG_CTRL1) # Get current value
       val &= 0b1111 # Mask off lowest 4 bits
@@ -225,9 +267,4 @@ class LIS3DH:
       if not self.isDebug: return
       print message
 
-if __name__ == '__main__':
-   sensor = LIS3DH(debug=True)
-   print "Starting stream"
-   while True:
-      print "\rX: %.6f\tY: %.6f\tZ: %.6f" % (sensor.getX(), sensor.getY(), sensor.getZ()),
-      sleep(0.01)
+
