@@ -14,3 +14,4 @@ Requires the Adafruit I2C library which can be found at https://github.com/adafr
  
 ## Credits
  * [Matt Dyson](http://mattdyson.org) - Original implementation
+ * [Mal Smalley](https://github.com/MalSmalley) - Implementation of 'click' functionality 
