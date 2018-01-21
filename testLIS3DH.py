@@ -21,7 +21,7 @@ if __name__ == '__main__':
     sensor.setClick(LIS3DH.CLK_DOUBLE, 200, mycallback=clickcallback)
 
     # second accelerometer
-    s2 = LIS3DH(address=0x19, debug=True)
+    # s2 = LIS3DH(address=0x19, debug=True)
 
     print("Starting stream")
     while True:
