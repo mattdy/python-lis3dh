@@ -2,18 +2,18 @@
 """
 LIS3DH Python Library for Raspberry Pi
 Created by Matt Dyson (mattdyson.org)
+Project hosted at https://github.com/mattdy/python-lis3dh
 Version 1.0 - 10/01/16
 Version 1.1 - 19/03/16 (Mal Smalley) Adding click detection
 Version 1.2 - 21/01/18 (holzfigure) Using new Adafruit library Adafruit_GPIO;
-                                    Making code more PEP8-conform;
+                                    Changing default busnumber (-1 -> 1);
+                                    Fixing indentation issues;
+                                    Increasing PEP8 and Python3 compatibility;
                                     Replacing variable name "range"
                                       (which is a keyword) with "g-range";
-                                    Changing default busnumber (from -1 to 1)
 
 Requires the Adafruit_Python_GPIO library
 https://github.com/adafruit/Adafruit_Python_GPIO
-# [Doesn't require the Adafruit I2C Python library
-#   https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code anymore]
 
 Inspiration and assistance from:
  - https://github.com/adafruit/Adafruit_LIS3DH
