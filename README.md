@@ -7,8 +7,8 @@ This is not a complete implementation of all the features of the LIS3DH - if you
 Requires the Adafruit_Python_GPIO library which can be found at https://github.com/adafruit/Adafruit_Python_GPIO
 
 ## Useful reading
+ * https://www.adafruit.com/product/2809
  * https://www.adafruit.com/datasheets/LIS3DH.pdf
- * https://github.com/adafruit/Adafruit_LIS3DH
  * https://github.com/adafruit/Adafruit_LIS3DH/blob/master/Adafruit_LIS3DH.cpp
  * https://github.com/adafruit/Adafruit_LIS3DH/blob/master/Adafruit_LIS3DH.h
  * https://github.com/adafruit/Adafruit_Python_GPIO
