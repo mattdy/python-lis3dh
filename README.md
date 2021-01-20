@@ -1,3 +1,10 @@
+# **DEPRECATION WARNING**
+Adafruit has deprecated the [Adafruit_Python_GPIO library](https://github.com/adafruit/Adafruit_Python_GPIO) in favour of [blinka](https://github.com/adafruit/Adafruit_Blinka), which allows to use their full-fledged CircuitPython code for the sensor, which can be found here: https://github.com/adafruit/Adafruit_CircuitPython_LIS3DH
+
+This library will still function under Python 2, however [Python 2 has reached end-of-life](https://www.python.org/doc/sunset-python-2/) and you should therefore move to using the above libraries with Python 3.
+
+Because of this, this repository will be archived and no further updates will be made. My thanks to everyone who has contributed to it in the past.
+
 # python-lis3dh
 Python library for using a [LIS3DH triple-axis accelerometer](https://www.adafruit.com/products/2809) on a Raspberry Pi
 
